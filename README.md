@@ -49,4 +49,5 @@ flutter run
 - `lib/main.dart`: interface do aplicativo e validações do formulário.
 - `lib/models/`: tipos e resultado de investimento.
 - `lib/services/investment_calculator.dart`: regras de cálculo.
+- `lib/services/br_formatters.dart`: formatação local de moeda e percentual em pt-BR.
 - `test/investment_calculator_test.dart`: testes unitários dos cálculos.

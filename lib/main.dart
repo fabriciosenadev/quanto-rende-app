@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
-
 import 'models/investment_result.dart';
 import 'models/investment_type.dart';
+import 'services/br_formatters.dart';
 import 'services/investment_calculator.dart';
 
 void main() {
@@ -39,9 +38,6 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   final _formKey = GlobalKey<FormState>();
   final _calculator = const InvestmentCalculator();
-  final _currencyFormatter = NumberFormat.currency(locale: 'pt_BR', symbol: 'R\$');
-  final _percentFormatter = NumberFormat.percentPattern('pt_BR')..minimumFractionDigits = 2;
-
   final _initialAmountController = TextEditingController();
   final _monthsController = TextEditingController();
   final _cdiAnnualRateController = TextEditingController(text: '10');
@@ -85,7 +81,10 @@ class _HomePageState extends State<HomePage> {
                       children: [
                         Text(
                           'Simule seu investimento',
-                          style: Theme.of(context).textTheme.headlineSmall?.copyWith(fontWeight: FontWeight.bold),
+                          style: Theme.of(context)
+                              .textTheme
+                              .headlineSmall
+                              ?.copyWith(fontWeight: FontWeight.bold),
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -99,22 +98,36 @@ class _HomePageState extends State<HomePage> {
                             labelText: 'Valor inicial investido',
                             prefixText: 'R\$ ',
                           ),
-                          keyboardType: const TextInputType.numberWithOptions(decimal: true),
-                          validator: (value) => _validateRequiredPositive(value, 'Informe o valor inicial.'),
+                          keyboardType: const TextInputType.numberWithOptions(
+                            decimal: true,
+                          ),
+                          validator: (value) => _validateRequiredPositive(
+                            value,
+                            'Informe o valor inicial.',
+                          ),
                         ),
                         const SizedBox(height: 16),
                         TextFormField(
                           controller: _monthsController,
-                          decoration: const InputDecoration(labelText: 'Prazo em meses'),
+                          decoration: const InputDecoration(
+                            labelText: 'Prazo em meses',
+                          ),
                           keyboardType: TextInputType.number,
-                          validator: (value) => _validateRequiredPositive(value, 'Informe o prazo.'),
+                          validator: _validateRequiredPositiveInteger,
                         ),
                         const SizedBox(height: 16),
                         DropdownButtonFormField<InvestmentType>(
                           value: _selectedType,
-                          decoration: const InputDecoration(labelText: 'Tipo de investimento'),
+                          decoration: const InputDecoration(
+                            labelText: 'Tipo de investimento',
+                          ),
                           items: InvestmentType.values
-                              .map((type) => DropdownMenuItem(value: type, child: Text(type.label)))
+                              .map(
+                                (type) => DropdownMenuItem(
+                                  value: type,
+                                  child: Text(type.label),
+                                ),
+                              )
                               .toList(),
                           onChanged: (type) {
                             if (type != null) {
@@ -137,8 +150,6 @@ class _HomePageState extends State<HomePage> {
                           const SizedBox(height: 24),
                           _ResultCard(
                             result: _result!,
-                            currencyFormatter: _currencyFormatter,
-                            percentFormatter: _percentFormatter,
                           ),
                         ],
                       ],
@@ -161,21 +172,28 @@ class _HomePageState extends State<HomePage> {
           controller: controller,
           decoration: InputDecoration(labelText: label, suffixText: '% a.a.'),
           keyboardType: const TextInputType.numberWithOptions(decimal: true),
-          validator: (value) => _validateRequiredPositive(value, 'Informe a taxa anual.'),
+          validator: (value) => _validateRequiredPositive(
+            value,
+            'Informe a taxa anual.',
+          ),
         ),
       );
     }
 
     return switch (_selectedType) {
       InvestmentType.savings => const [
-          Text('Poupança: rendimento fixo de 0,5% ao mês.'),
-        ],
-      InvestmentType.cdi => [rateField(_cdiAnnualRateController, 'Percentual anual do CDI')],
-      InvestmentType.fixedRate => [rateField(_fixedAnnualRateController, 'Taxa prefixada anual')],
+        Text('Poupança: rendimento fixo de 0,5% ao mês.'),
+      ],
+      InvestmentType.cdi => [
+        rateField(_cdiAnnualRateController, 'Percentual anual do CDI'),
+      ],
+      InvestmentType.fixedRate => [
+        rateField(_fixedAnnualRateController, 'Taxa prefixada anual'),
+      ],
       InvestmentType.ipcaPlus => [
-          rateField(_ipcaAnnualRateController, 'IPCA anual estimado'),
-          rateField(_realAnnualRateController, 'Taxa real anual'),
-        ],
+        rateField(_ipcaAnnualRateController, 'IPCA anual estimado'),
+        rateField(_realAnnualRateController, 'Taxa real anual'),
+      ],
     };
   }
 
@@ -183,7 +201,7 @@ class _HomePageState extends State<HomePage> {
     if (value == null || value.trim().isEmpty) {
       return emptyMessage;
     }
-    final number = _parseNumber(value);
+    final number = _parseDecimal(value);
     if (number == null) {
       return 'Informe um número válido.';
     }
@@ -199,33 +217,51 @@ class _HomePageState extends State<HomePage> {
     }
 
     final result = _calculator.calculate(
-      initialAmount: _parseNumber(_initialAmountController.text)!,
-      months: _parseNumber(_monthsController.text)!.round(),
+      initialAmount: _parseDecimal(_initialAmountController.text)!,
+      months: int.parse(_monthsController.text.trim()),
       type: _selectedType,
-      cdiAnnualRate: _parseNumber(_cdiAnnualRateController.text) ?? 0,
-      fixedAnnualRate: _parseNumber(_fixedAnnualRateController.text) ?? 0,
-      ipcaAnnualRate: _parseNumber(_ipcaAnnualRateController.text) ?? 0,
-      realAnnualRate: _parseNumber(_realAnnualRateController.text) ?? 0,
+      cdiAnnualRate: _parseDecimal(_cdiAnnualRateController.text) ?? 0,
+      fixedAnnualRate: _parseDecimal(_fixedAnnualRateController.text) ?? 0,
+      ipcaAnnualRate: _parseDecimal(_ipcaAnnualRateController.text) ?? 0,
+      realAnnualRate: _parseDecimal(_realAnnualRateController.text) ?? 0,
     );
 
     setState(() => _result = result);
   }
 
-  double? _parseNumber(String value) {
-    return double.tryParse(value.trim().replaceAll('.', '').replaceAll(',', '.'));
+  String? _validateRequiredPositiveInteger(String? value) {
+    if (value == null || value.trim().isEmpty) {
+      return 'Informe o prazo.';
+    }
+    final number = int.tryParse(value.trim());
+    if (number == null) {
+      return 'Informe um número inteiro de meses.';
+    }
+    if (number < 0) {
+      return 'Não informe valores negativos.';
+    }
+    return null;
+  }
+
+  double? _parseDecimal(String value) {
+    final trimmed = value.trim();
+    final hasComma = trimmed.contains(',');
+    final hasDot = trimmed.contains('.');
+
+    final normalized = hasComma && hasDot
+        ? trimmed.replaceAll('.', '').replaceAll(',', '.')
+        : trimmed.replaceAll(',', '.');
+
+    return double.tryParse(normalized);
   }
 }
 
 class _ResultCard extends StatelessWidget {
   const _ResultCard({
     required this.result,
-    required this.currencyFormatter,
-    required this.percentFormatter,
   });
 
   final InvestmentResult result;
-  final NumberFormat currencyFormatter;
-  final NumberFormat percentFormatter;
 
   @override
   Widget build(BuildContext context) {
@@ -237,9 +273,18 @@ class _ResultCard extends StatelessWidget {
           children: [
             Text('Resultado', style: Theme.of(context).textTheme.titleLarge),
             const SizedBox(height: 12),
-            _ResultLine(label: 'Valor final bruto', value: currencyFormatter.format(result.finalAmount)),
-            _ResultLine(label: 'Lucro bruto', value: currencyFormatter.format(result.grossProfit)),
-            _ResultLine(label: 'Rentabilidade acumulada', value: percentFormatter.format(result.accumulatedReturn)),
+            _ResultLine(
+              label: 'Valor final bruto',
+              value: formatCurrencyBr(result.finalAmount),
+            ),
+            _ResultLine(
+              label: 'Lucro bruto',
+              value: formatCurrencyBr(result.grossProfit),
+            ),
+            _ResultLine(
+              label: 'Rentabilidade acumulada',
+              value: formatPercentBr(result.accumulatedReturn),
+            ),
           ],
         ),
       ),
