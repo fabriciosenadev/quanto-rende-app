@@ -1,1 +1,81 @@
+Nome do projeto:
+Quanto Rende?
+
+Objetivo:
+Criar um aplicativo Android simples para simular quanto um valor investido pode render ao longo do tempo.
+
+Tecnologia:
+Flutter.
+
+Plataforma inicial:
+Android.
+
+Escopo da primeira versão:
+O app deve ter apenas funcionalidades locais, sem login, sem backend, sem banco de dados e sem API externa.
+
+Funcionalidades:
+
+1. Tela inicial com título "Quanto Rende?"
+2. Formulário com:
+
+   * Valor inicial investido
+   * Prazo em meses
+   * Tipo de investimento
+3. Tipos de investimento:
+
+   * Poupança
+   * CDI
+   * Prefixado
+   * IPCA+ simplificado
+4. Botão "Calcular"
+5. Tela ou área de resultado exibindo:
+
+   * Valor final bruto
+   * Lucro bruto
+   * Rentabilidade acumulada
+6. Validações simples:
+
+   * Valor inicial obrigatório
+   * Prazo obrigatório
+   * Não permitir valores negativos
+7. Interface limpa, simples e responsiva.
+8. Código organizado e fácil de manter.
+
+Regras de cálculo iniciais:
+
+* Poupança: usar rendimento fixo de 0,5% ao mês.
+* CDI: permitir informar percentual anual do CDI e converter para rendimento mensal aproximado.
+* Prefixado: permitir informar taxa anual e converter para rendimento mensal.
+* IPCA+: permitir informar IPCA anual estimado e taxa real anual, somar de forma simplificada e converter para rendimento mensal.
+
+Fórmula base:
+valorFinal = valorInicial * pow(1 + taxaMensal, prazoMeses)
+
+Não implementar ainda:
+
+* AdMob
+* Login
+* Cadastro de usuário
+* Banco local
+* Backend
+* Sincronização
+* Assinatura paga
+* Gráficos avançados
+
+Prioridade:
+Entregar uma primeira versão funcional, simples e publicável.
+
+Tarefas esperadas:
+
+1. Criar estrutura inicial do projeto Flutter.
+2. Criar telas principais.
+3. Implementar formulário.
+4. Implementar cálculos.
+5. Implementar validações.
+6. Criar testes unitários para os cálculos.
+7. Garantir que o app rode no Android.
+8. Criar um README com instruções para executar o projeto.
+
+Critério de aceite:
+O projeto deve compilar, abrir no Android, permitir preencher os campos, calcular o resultado e exibir os valores formatados em reais.
 
